@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Newborn Monitor</title>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+  <style>
+    body {
+      font-family: Arial;
+      background: #f1f1f1;
+      padding: 30px;
+    }
+    .card {
+      background: white;
+      padding: 20px;
+      margin-bottom: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .alert {
+      color: red;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h2>Newborn Health Monitor</h2>
+  <div id="dataDisplay"></div>
+
+  <script>
+    // ✅ Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyB9y9OLUOqyft5tcIxeRaWTHDWszH0vKl4",
+      authDomain: "newbornmonitor-57815.firebaseapp.com",
+      databaseURL: "https://newbornmonitor-57815-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "newbornmonitor-57815",
+      storageBucket: "newbornmonitor-57815.appspot.com",
+      messagingSenderId: "389799468062",
+      appId: "1:389799468062:web:64457db5eddc477db3220f"
+    };
+
+    // ✅ Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    // ✅ Read data
+    const displayDiv = document.getElementById("dataDisplay");
+    db.ref("patients").on("value", (snapshot) => {
+      displayDiv.innerHTML = ""; // Clear previous content
+      snapshot.forEach((childSnapshot) => {
+        const data = childSnapshot.val();
+
+        // 🚨 Warning logic
+        let alertMessage = "";
+        if (data.heartbeat > 160 || data.heartbeat < 100) {
+          alertMessage += `<p class="alert">⚠️ Abnormal Heartbeat!</p>`;
+        }
+        if (data.temperature > 37.5 || data.temperature < 36.0) {
+          alertMessage += `<p class="alert">⚠️ Abnormal Temperature!</p>`;
+        }
+
+        displayDiv.innerHTML += `
+          <div class="card">
+            <h3>${data.name}</h3>
+            <p>🛏 Bed: ${data.bed}</p>
+            <p>💓 Heartbeat: ${data.heartbeat} bpm</p>
+            <p>🌡 Temperature: ${data.temperature} °C</p>
+            ${alertMessage}
+          </div>
+        `;
+      });
+    });
+  </script>
+</body>
+</html>
