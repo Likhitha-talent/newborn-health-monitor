@@ -25,7 +25,7 @@
 </head>
 <body>
   <h2>Newborn Health Monitor</h2>
-  <div id="dataDisplay"></div>
+  <div id="dataDisplay">Loading data...</div>
 
   <script>
     // ✅ Firebase config
@@ -38,22 +38,22 @@
       messagingSenderId: "389799468062",
       appId: "1:389799468062:web:64457db5eddc477db3220f"
     };
-  
+
     // ✅ Initialize Firebase
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
-  
+
     const displayDiv = document.getElementById("dataDisplay");
-  
-    // ✅ Read only the *latest* data from patients/BabyA/current
+
+    // ✅ Read only the latest data from patients/BabyA/current
     db.ref("patients/BabyA/current").on("value", (snapshot) => {
       const data = snapshot.val();
-  
+
       if (!data) {
         displayDiv.innerHTML = "<p>No data available.</p>";
         return;
       }
-  
+
       // 🚨 Alert logic
       let alertMessage = "";
       if (data.heartbeat > 160 || data.heartbeat < 100) {
@@ -62,7 +62,7 @@
       if (data.temperature > 37.5 || data.temperature < 36.0) {
         alertMessage += `<p class="alert">⚠️ Abnormal Temperature!</p>`;
       }
-  
+
       // ✅ Display latest data
       displayDiv.innerHTML = `
         <div class="card">
@@ -76,6 +76,5 @@
       `;
     });
   </script>
-  
 </body>
 </html>
