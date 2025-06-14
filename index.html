@@ -38,39 +38,44 @@
       messagingSenderId: "389799468062",
       appId: "1:389799468062:web:64457db5eddc477db3220f"
     };
-
+  
     // ✅ Initialize Firebase
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
-
-    // ✅ Read data
+  
     const displayDiv = document.getElementById("dataDisplay");
-    db.ref("patients").on("value", (snapshot) => {
-      displayDiv.innerHTML = ""; // Clear previous content
-      snapshot.forEach((childSnapshot) => {
-        const data = childSnapshot.val();
-
-        // 🚨 Warning logic
-        let alertMessage = "";
-        if (data.heartbeat > 160 || data.heartbeat < 100) {
-          alertMessage += `<p class="alert">⚠️ Abnormal Heartbeat!</p>`;
-        }
-        if (data.temperature > 37.5 || data.temperature < 36.0) {
-          alertMessage += `<p class="alert">⚠️ Abnormal Temperature!</p>`;
-        }
-
-        displayDiv.innerHTML += `
-          <div class="card">
-            <h3>${data.name}</h3>
-            <p>🛏 Bed: ${data.bed}</p>
-            <p>💓 Heartbeat: ${data.heartbeat} bpm</p>
-            <p>🌡 Temperature: ${data.temperature} °C</p>
-            <p>🕒 Time: ${data.timestamp}</p>
-            ${alertMessage}
-          </div>
-        `;
-      });
+  
+    // ✅ Read only the *latest* data from patients/BabyA/current
+    db.ref("patients/BabyA/current").on("value", (snapshot) => {
+      const data = snapshot.val();
+  
+      if (!data) {
+        displayDiv.innerHTML = "<p>No data available.</p>";
+        return;
+      }
+  
+      // 🚨 Alert logic
+      let alertMessage = "";
+      if (data.heartbeat > 160 || data.heartbeat < 100) {
+        alertMessage += `<p class="alert">⚠️ Abnormal Heartbeat!</p>`;
+      }
+      if (data.temperature > 37.5 || data.temperature < 36.0) {
+        alertMessage += `<p class="alert">⚠️ Abnormal Temperature!</p>`;
+      }
+  
+      // ✅ Display latest data
+      displayDiv.innerHTML = `
+        <div class="card">
+          <h3>${data.name}</h3>
+          <p>🛏 Bed: ${data.bed}</p>
+          <p>💓 Heartbeat: ${data.heartbeat} bpm</p>
+          <p>🌡 Temperature: ${data.temperature} °C</p>
+          <p>🕒 Time: ${data.timestamp}</p>
+          ${alertMessage}
+        </div>
+      `;
     });
   </script>
+  
 </body>
 </html>
